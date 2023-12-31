@@ -1,0 +1,128 @@
+import java.util.Scanner;
+
+public class Main {
+    static boolean isValidSlotPlaceInput(int boardLengthSize, int row, int column) {
+        if (!(Math.min(row, column) >= 0 && Math.max(row, column) < boardLengthSize)) {
+            System.out.println("Error! Selected slot location is invalid.\nPlease select a number between 0 - "
+                    + (boardLengthSize - 1));
+            return false;
+        }
+        return true;
+    }
+
+    static boolean isEmptySlotPlace(String[][] board, int row, int column) {
+        if (!board[row][column].equals("_")) {
+            System.out.println("Error! The location you selected is already taken.\nPlease select a new location");
+            return false;
+        }
+        return true;
+    }
+
+    static boolean isValidUserSlotSelection(String[][] board, int row, int column) {
+        if (!isValidSlotPlaceInput(board.length, row, column)) {
+            return false;
+        }
+        return isEmptySlotPlace(board, row, column);
+    }
+
+    static boolean isVictory(String[][] board, String signToCheck) {
+        int boardLength = board.length;
+        boolean flagIsVictory;
+        // rows checking
+        for (String[] row : board) {
+            flagIsVictory = true;
+            for (String column : row) {
+                if (!column.equals(signToCheck)) {
+                    flagIsVictory = false;
+                    break;
+                }
+            }
+            if (flagIsVictory) {
+                return true;
+            }
+        }
+        // columns checking
+        for (int i = 0; i < boardLength; i++) {
+            flagIsVictory = true;
+            for (String[] row : board) {
+                if (!row[i].equals(signToCheck)) {
+                    flagIsVictory = false;
+                    break;
+                }
+            }
+            if (flagIsVictory) {
+                return true;
+            }
+        }
+        // primary diagonal checking
+        flagIsVictory = true;
+        for (int i = 0; i < boardLength; i++) {
+            if (!board[i][i].equals(signToCheck)){
+                flagIsVictory = false;
+                break;
+            }
+        }
+        if (flagIsVictory) {
+            return true;
+        }
+        // secondary diagonal checking
+        flagIsVictory = true;
+        for (int i = 0, j = boardLength - 1; i < boardLength; i++, j--) {
+            if (!board[i][j].equals(signToCheck)) {
+                flagIsVictory = false;
+                break;
+            }
+        }
+        return flagIsVictory;
+    }
+
+    static void printBoard(String[][] board) {
+        for (String[] row : board) {
+            for (String column : row) {
+                System.out.print(column + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    static void makingTurn(Scanner scanner, String[][] board, String userTurnSign) {
+        System.out.println("\""+ userTurnSign + "\" turn\nEnter your slot choice");
+        System.out.print("Row: ");
+        int rowUserChoice = scanner.nextInt();
+        System.out.print("Column: ");
+        int columnUserChoice = scanner.nextInt();
+        while (!isValidUserSlotSelection(board, rowUserChoice, columnUserChoice)) {
+            System.out.print("Row: ");
+            rowUserChoice = scanner.nextInt();
+            System.out.print("Column: ");
+            columnUserChoice = scanner.nextInt();
+        }
+        board[rowUserChoice][columnUserChoice] = userTurnSign;
+        printBoard(board);
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int continuePlay = 1;
+        while (continuePlay == 1) {
+            String[][] board = {{"_", "_", "_"}, {"_", "_", "_"}, {"_", "_", "_"}};
+            String userSign = "X";
+            int counterRounds = 0;
+            do {
+                makingTurn(scanner, board, userSign);
+                if (++counterRounds >= 9) {
+                    System.out.println("This game is draw");
+                    break;
+                }
+                if (isVictory(board, userSign)) {
+                    System.out.println("The winner is " + userSign);
+                    break;
+                }
+                userSign = userSign.equals("X") ? "O" : "X";
+            } while (true);
+            System.out.println("Wold you like to play again?\n1. Yes\n2.No");
+            continuePlay = scanner.nextInt();
+        }
+        scanner.close();
+    }
+}
